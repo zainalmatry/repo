@@ -32,7 +32,7 @@ import android.view.View;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import org.smssecure.smssecure.components.PushRecipientsPanel;
+import org.smssecure.smssecure.components.GroupRecipientsPanel;
 import org.smssecure.smssecure.contacts.RecipientsEditor;
 import org.smssecure.smssecure.crypto.MasterSecret;
 import org.smssecure.smssecure.database.DatabaseFactory;
@@ -77,7 +77,7 @@ public class GroupCreateActivity extends PassphraseRequiredActionBarActivity {
   public static final  int AVATAR_SIZE  = 210;
 
   private ListView            lv;
-  private PushRecipientsPanel recipientsPanel;
+  private GroupRecipientsPanel recipientsPanel;
 
   private Recipient      groupRecipient    = null;
   private long           groupThread       = -1;
@@ -129,7 +129,7 @@ public class GroupCreateActivity extends PassphraseRequiredActionBarActivity {
 
   private void initializeResources() {
     lv              = (ListView)            findViewById(R.id.selected_contacts_list);
-    recipientsPanel = (PushRecipientsPanel) findViewById(R.id.recipients);
+    recipientsPanel = (GroupRecipientsPanel) findViewById(R.id.recipients);
 
     SelectedRecipientsAdapter adapter = new SelectedRecipientsAdapter(this, android.R.id.text1, new ArrayList<SelectedRecipientsAdapter.RecipientWrapper>());
     adapter.setOnRecipientDeletedListener(new SelectedRecipientsAdapter.OnRecipientDeletedListener() {
@@ -140,7 +140,7 @@ public class GroupCreateActivity extends PassphraseRequiredActionBarActivity {
     });
     lv.setAdapter(adapter);
 
-    recipientsPanel.setPanelChangeListener(new PushRecipientsPanel.RecipientsPanelChangedListener() {
+    recipientsPanel.setPanelChangeListener(new GroupRecipientsPanel.RecipientsPanelChangedListener() {
       @Override
       public void onRecipientsPanelUpdate(Recipients recipients) {
         Log.i(TAG, "onRecipientsPanelUpdate received.");
@@ -223,7 +223,7 @@ public class GroupCreateActivity extends PassphraseRequiredActionBarActivity {
   private class AddRecipientButtonListener implements View.OnClickListener {
     @Override
     public void onClick(View v) {
-      Intent intent = new Intent(GroupCreateActivity.this, PushContactSelectionActivity.class);
+      Intent intent = new Intent(GroupCreateActivity.this, GroupContactSelectionActivity.class);
       startActivityForResult(intent, PICK_CONTACT);
     }
   }

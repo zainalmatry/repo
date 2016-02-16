@@ -39,9 +39,9 @@ import java.util.List;
  * @author Moxie Marlinspike
  *
  */
-public class PushContactSelectionActivity extends ContactSelectionActivity {
+public class GroupContactSelectionActivity extends ContactSelectionActivity {
 
-  private final static String TAG = PushContactSelectionActivity.class.getSimpleName();
+  private final static String TAG = GroupContactSelectionActivity.class.getSimpleName();
 
   @Override
   protected void onCreate(Bundle icicle, @NonNull MasterSecret masterSecret) {

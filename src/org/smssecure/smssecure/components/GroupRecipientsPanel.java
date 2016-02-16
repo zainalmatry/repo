@@ -50,8 +50,8 @@ import java.util.Set;
  *
  * @author Moxie Marlinspike
  */
-public class PushRecipientsPanel extends RelativeLayout implements RecipientsModifiedListener {
-  private final String                         TAG = PushRecipientsPanel.class.getSimpleName();
+public class GroupRecipientsPanel extends RelativeLayout implements RecipientsModifiedListener {
+  private final String                         TAG = GroupRecipientsPanel.class.getSimpleName();
   private       RecipientsPanelChangedListener panelChangeListener;
 
   private RecipientsEditor recipientsText;
@@ -59,17 +59,17 @@ public class PushRecipientsPanel extends RelativeLayout implements RecipientsMod
 
   private static final int RECIPIENTS_MAX_LENGTH = 312;
 
-  public PushRecipientsPanel(Context context) {
+  public GroupRecipientsPanel(Context context) {
     super(context);
     initialize();
   }
 
-  public PushRecipientsPanel(Context context, AttributeSet attrs) {
+  public GroupRecipientsPanel(Context context, AttributeSet attrs) {
     super(context, attrs);
     initialize();
   }
 
-  public PushRecipientsPanel(Context context, AttributeSet attrs, int defStyle) {
+  public GroupRecipientsPanel(Context context, AttributeSet attrs, int defStyle) {
     super(context, attrs, defStyle);
     initialize();
   }
