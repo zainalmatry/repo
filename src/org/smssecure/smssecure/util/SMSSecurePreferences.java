@@ -92,7 +92,8 @@ public class SMSSecurePreferences {
   private static final String MEDIA_DOWNLOAD_PREF              = "pref_media_download";
   private static final String MEDIA_DOWNLOAD_ROAMING_PREF      = "pref_media_download_roaming";
 
-  private static final String WEB_INTERFACE_ENABLED            = "pref_enable_web_interface";
+  public  static final String WEB_INTERFACE_ENABLED            = "pref_enable_web_interface";
+  public  static final String WEB_INTERFACE_PASSPHRASE         = "preference_web_interface_passphrase";
 
   public static NotificationPrivacyPreference getNotificationPrivacy(Context context) {
     return new NotificationPrivacyPreference(getStringPreference(context, NOTIFICATION_PRIVACY_PREF, "all"));
@@ -514,7 +515,19 @@ public class SMSSecurePreferences {
   }
 
   public static boolean isWebInterfaceEnabled(Context context) {
-    return getBooleanPreference(context, WEB_INTERFACE_ENABLED, false);
+    return getBooleanPreference(context, WEB_INTERFACE_ENABLED, false) && isWebInterfacePassphraseEnabled(context);
+  }
+
+  public static boolean isWebInterfacePassphraseEnabled(Context context) {
+    return !getWebInterfacePassphrase(context).equals("");
+  }
+
+  public static String getWebInterfacePassphrase(Context context) {
+    return getStringPreference(context, WEB_INTERFACE_PASSPHRASE, "");
+  }
+
+  public static void setWebInterfacePassphrase(Context context, String passphrase) {
+    setStringPreference(context, WEB_INTERFACE_PASSPHRASE, passphrase);
   }
 
   public static void setBooleanPreference(Context context, String key, boolean value) {

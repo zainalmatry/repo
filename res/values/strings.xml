@@ -710,6 +710,7 @@
     <string name="preferences__web">Web interface</string>
     <string name="preferences__enable_web_interface">Enable web interface</string>
     <string name="preferences__enable_this_option_to_send_and_receive_messages_from_your_desktop">Enable this option to send and receive messages from your desktop</string>
+    <string name="preferences_web_interface_passphrase">Web interface passphrase</string>
 
     <!-- **************************************** -->
     <!-- menus -->
