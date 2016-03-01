@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <org.smssecure.smssecure.components.SwitchPreferenceCompat
+                        android:defaultValue="false"
+                        android:key="pref_enable_web_interface"
+                        android:title="@string/preferences__enable_web_interface"
+                        android:summary="@string/preferences__enable_this_option_to_send_and_receive_messages_from_your_desktop" />
+
+</PreferenceScreen>

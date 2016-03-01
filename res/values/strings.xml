@@ -707,6 +707,9 @@
     <string name="preferences__roaming_auto_retrieve">Roaming auto-retrieve</string>
     <string name="preferences__automatically_retrieve_mms_when_roaming">Automatically retrieve MMS when roaming</string>
     <string name="preferences_chats__message_trimming">Message trimming</string>
+    <string name="preferences__web">Web interface</string>
+    <string name="preferences__enable_web_interface">Enable web interface</string>
+    <string name="preferences__enable_this_option_to_send_and_receive_messages_from_your_desktop">Enable this option to send and receive messages from your desktop</string>
 
     <!-- **************************************** -->
     <!-- menus -->

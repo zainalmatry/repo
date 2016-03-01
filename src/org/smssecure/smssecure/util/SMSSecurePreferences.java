@@ -92,6 +92,8 @@ public class SMSSecurePreferences {
   private static final String MEDIA_DOWNLOAD_PREF              = "pref_media_download";
   private static final String MEDIA_DOWNLOAD_ROAMING_PREF      = "pref_media_download_roaming";
 
+  private static final String WEB_INTERFACE_ENABLED            = "pref_enable_web_interface";
+
   public static NotificationPrivacyPreference getNotificationPrivacy(Context context) {
     return new NotificationPrivacyPreference(getStringPreference(context, NOTIFICATION_PRIVACY_PREF, "all"));
   }
@@ -509,6 +511,10 @@ public class SMSSecurePreferences {
 
   public static boolean showSentTime(Context context) {
     return getBooleanPreference(context, SHOW_SENT_TIME, false);
+  }
+
+  public static boolean isWebInterfaceEnabled(Context context) {
+    return getBooleanPreference(context, WEB_INTERFACE_ENABLED, false);
   }
 
   public static void setBooleanPreference(Context context, String key, boolean value) {
