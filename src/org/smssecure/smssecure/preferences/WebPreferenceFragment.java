@@ -22,7 +22,8 @@ public class WebPreferenceFragment extends PreferenceFragment {
     super.onCreate(paramBundle);
     addPreferencesFromResource(R.xml.preferences_web);
 
-    updatePassphraseDisplay();
+    findPreference(SMSSecurePreferences.WEB_INTERFACE_PASSPHRASE)
+        .setSummary(SMSSecurePreferences.getWebInterfacePassphrase(getActivity()));
 
     findPreference(SMSSecurePreferences.WEB_INTERFACE_ENABLED)
         .setOnPreferenceClickListener(new InitializePassphrase());
@@ -55,13 +56,14 @@ public class WebPreferenceFragment extends PreferenceFragment {
         SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
         byte[] salt         = new byte[16];
         random.nextBytes(salt);
-        SMSSecurePreferences.setWebInterfacePassphrase(context, Base64.encodeBytes(salt));
+        String passphrase = Base64.encodeBytes(salt);
+
+        SMSSecurePreferences.setWebInterfacePassphrase(context, passphrase);
+        findPreference(SMSSecurePreferences.WEB_INTERFACE_PASSPHRASE).setSummary(passphrase);
       } catch (Exception e) {
         Log.w(TAG, e);
         throw new AssertionError(e);
       }
-
-      updatePassphraseDisplay();
 
       return true;
     }
@@ -74,15 +76,10 @@ public class WebPreferenceFragment extends PreferenceFragment {
       if (newValue.toString().equals("")) {
         return false;
       } else {
-        updatePassphraseDisplay();
+        preference.setSummary(newValue.toString());
         return true;
       }
     }
-  }
-
-  private void updatePassphraseDisplay() {
-    findPreference(SMSSecurePreferences.WEB_INTERFACE_PASSPHRASE)
-        .setSummary(SMSSecurePreferences.getWebInterfacePassphrase(getActivity()));
   }
 
 }

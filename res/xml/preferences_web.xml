@@ -8,7 +8,8 @@
                         android:title="@string/preferences__enable_web_interface"
                         android:summary="@string/preferences__enable_this_option_to_send_and_receive_messages_from_your_desktop" />
 
-    <EditTextPreference android:key="preference_web_interface_passphrase"
+    <EditTextPreference android:id="@+id/preference_web_interface_passphrase"
+                        android:key="pref_web_interface_passphrase"
                         android:title="@string/preferences_web_interface_passphrase"
                         android:inputType="text"
                         android:dependency="pref_enable_web_interface" />

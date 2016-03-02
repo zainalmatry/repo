@@ -93,7 +93,7 @@ public class SMSSecurePreferences {
   private static final String MEDIA_DOWNLOAD_ROAMING_PREF      = "pref_media_download_roaming";
 
   public  static final String WEB_INTERFACE_ENABLED            = "pref_enable_web_interface";
-  public  static final String WEB_INTERFACE_PASSPHRASE         = "preference_web_interface_passphrase";
+  public  static final String WEB_INTERFACE_PASSPHRASE         = "pref_web_interface_passphrase";
 
   public static NotificationPrivacyPreference getNotificationPrivacy(Context context) {
     return new NotificationPrivacyPreference(getStringPreference(context, NOTIFICATION_PRIVACY_PREF, "all"));
