@@ -18,6 +18,7 @@ package org.smssecure.smssecure.contacts;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.database.CursorWrapper;
 import android.database.MergeCursor;
 import android.support.v4.content.CursorLoader;
 import android.text.TextUtils;
@@ -50,18 +51,24 @@ public class ContactsCursorLoader extends CursorLoader {
   @Override
   public Cursor loadInBackground() {
     ContactsDatabase  contactsDatabase = DatabaseFactory.getContactsDatabase(getContext());
-    ArrayList<Cursor> cursorList       = new ArrayList<>(3);
+    ArrayList<Cursor> cursorList       = new ArrayList<>();
 
-    cursorList.add(contactsDatabase.querySilenceContacts(filter));
+    Cursor silenceContacts = contactsDatabase.querySilenceContacts(filter);
+    if (silenceContacts != null) cursorList.add(silenceContacts);
 
     if (includeSmsContacts) {
-      cursorList.add(contactsDatabase.querySystemContacts(filter));
+      Cursor systemContacts = contactsDatabase.querySystemContacts(filter);
+      if (systemContacts != null) cursorList.add(systemContacts);
     }
 
     if (!TextUtils.isEmpty(filter) && NumberUtil.isValidSmsOrEmail(filter)) {
       cursorList.add(contactsDatabase.getNewNumberCursor(filter));
     }
 
-    return new MergeCursor(cursorList.toArray(new Cursor[0]));
+    if (cursorList.size() > 0) {
+      return new MergeCursor(cursorList.toArray(new Cursor[0]));
+    } else {
+      return null;
+    }
   }
 }

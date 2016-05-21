@@ -23,10 +23,10 @@ import android.database.MatrixCursor;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.ContactsContract;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.Pair;
+import android.util.Log;
 
 import org.smssecure.smssecure.R;
 
@@ -61,7 +61,7 @@ public class ContactsDatabase {
     this.context  = context;
   }
 
-  public @NonNull Cursor querySystemContacts(String filter) {
+  public @Nullable Cursor querySystemContacts(String filter) {
     Uri uri;
 
     if (!TextUtils.isEmpty(filter)) {
@@ -90,17 +90,28 @@ public class ContactsDatabase {
       put(LABEL_COLUMN, ContactsContract.CommonDataKinds.Phone.LABEL);
     }};
 
-    Cursor cursor = context.getContentResolver().query(uri, projection,
-                                                       ContactsContract.Data.SYNC2 + " IS NULL OR " +
-                                                       ContactsContract.Data.SYNC2 + " != ?",
-                                                       new String[] {"__TS"},
-                                                       sort);
+    Cursor cursor;
+
+    try {
+      cursor = context.getContentResolver().query(uri, projection,
+                                                         ContactsContract.Data.SYNC2 + " IS NULL OR " +
+                                                         ContactsContract.Data.SYNC2 + " != ?",
+                                                         new String[] {"__TS"},
+                                                         sort);
+    } catch (NullPointerException npe) {
+      /*
+       * On a few phone (+ Sailfish OS 2.0), this throws a NPE. We just
+       * catch it and return a blank result.
+       */
+      Log.w(TAG, npe);
+      return null;
+    }
 
     return new ProjectionMappingCursor(cursor, projectionMap,
                                        new Pair<String, Object>(CONTACT_TYPE_COLUMN, NORMAL_TYPE));
   }
 
-  public @NonNull Cursor querySilenceContacts(String filter) {
+  public @Nullable Cursor querySilenceContacts(String filter) {
     String[] projection = new String[] {ContactsContract.Data._ID,
                                         ContactsContract.Contacts.DISPLAY_NAME,
                                         ContactsContract.Data.DATA1};
@@ -115,19 +126,28 @@ public class ContactsDatabase {
 
     Cursor cursor;
 
-    if (TextUtils.isEmpty(filter)) {
-      cursor = context.getContentResolver().query(ContactsContract.Data.CONTENT_URI,
-                                                  projection,
-                                                  ContactsContract.Data.MIMETYPE + " = ?",
-                                                  new String[] {"vnd.android.cursor.item/vnd.org.smssecure.smssecure.contact"},
-                                                  sort);
-    } else {
-      cursor = context.getContentResolver().query(ContactsContract.Data.CONTENT_URI,
-                                                  projection,
-                                                  ContactsContract.Data.MIMETYPE + " = ? AND " + ContactsContract.Contacts.DISPLAY_NAME + " LIKE ?",
-                                                  new String[] {"vnd.android.cursor.item/vnd.org.smssecure.smssecure.contact",
-                                                                "%" + filter + "%"},
-                                                  sort);
+    try {
+      if (TextUtils.isEmpty(filter)) {
+        cursor = context.getContentResolver().query(ContactsContract.Data.CONTENT_URI,
+                                                    projection,
+                                                    ContactsContract.Data.MIMETYPE + " = ?",
+                                                    new String[] {"vnd.android.cursor.item/vnd.org.smssecure.smssecure.contact"},
+                                                    sort);
+      } else {
+        cursor = context.getContentResolver().query(ContactsContract.Data.CONTENT_URI,
+                                                    projection,
+                                                    ContactsContract.Data.MIMETYPE + " = ? AND " + ContactsContract.Contacts.DISPLAY_NAME + " LIKE ?",
+                                                    new String[] {"vnd.android.cursor.item/vnd.org.smssecure.smssecure.contact",
+                                                                  "%" + filter + "%"},
+                                                    sort);
+      }
+    } catch (NullPointerException npe) {
+      /*
+       * On a few phone (+ Sailfish OS 2.0), this throws a NPE. We just
+       * catch it and return an empty result.
+       */
+      Log.w(TAG, npe);
+      return null;
     }
 
     return new ProjectionMappingCursor(cursor, projectionMap,
