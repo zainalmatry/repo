@@ -102,19 +102,23 @@ public class SingleRecipientNotificationBuilder extends AbstractNotificationBuil
   public void addActions(@Nullable MasterSecret masterSecret,
                          @NonNull PendingIntent markReadIntent,
                          @NonNull PendingIntent quickReplyIntent,
-                         @NonNull PendingIntent wearableReplyIntent)
+                         @NonNull PendingIntent wearableReplyIntent,
+                         @NonNull PendingIntent deleteIntent)
   {
-    Action markAsReadAction = new Action(R.drawable.check,
+    Action markAsReadAction = new Action(R.drawable.ic_check_white_24dp,
                                          context.getString(R.string.MessageNotifier_mark_read),
                                          markReadIntent);
+    Action deleteAction = new Action(R.drawable.ic_delete_white_24dp,
+                                     context.getString(R.string.delete),
+                                     deleteIntent);
 
     if (masterSecret != null) {
-      Action replyAction = new Action(R.drawable.ic_reply_white_36dp,
+      Action replyAction = new Action(R.drawable.ic_reply_white_24dp,
                                       context.getString(R.string.MessageNotifier_reply),
                                       quickReplyIntent);
 
       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-        replyAction = new Action.Builder(R.drawable.ic_reply_white_36dp,
+        replyAction = new Action.Builder(R.drawable.ic_reply_white_24dp,
                                          context.getString(R.string.MessageNotifier_reply),
                                          wearableReplyIntent)
             .addRemoteInput(new RemoteInput.Builder(MessageNotifier.EXTRA_REMOTE_REPLY)
@@ -131,13 +135,17 @@ public class SingleRecipientNotificationBuilder extends AbstractNotificationBuil
 
       addAction(markAsReadAction);
       addAction(replyAction);
+      addAction(deleteAction);
 
       extend(new NotificationCompat.WearableExtender().addAction(markAsReadAction)
-                                                      .addAction(wearableReplyAction));
+                                                      .addAction(wearableReplyAction)
+                                                      .addAction(deleteAction));
     } else {
       addAction(markAsReadAction);
+      addAction(deleteAction);
 
-      extend(new NotificationCompat.WearableExtender().addAction(markAsReadAction));
+      extend(new NotificationCompat.WearableExtender().addAction(markAsReadAction)
+                                                      .addAction(deleteAction));
     }
   }
 

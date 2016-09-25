@@ -295,7 +295,8 @@ public class MessageNotifier {
     builder.addActions(masterSecret,
                        notificationState.getMarkAsReadIntent(context, notificationId),
                        notificationState.getQuickReplyIntent(context, notifications.get(0).getRecipients()),
-                       notificationState.getRemoteReplyIntent(context, notifications.get(0).getRecipients()));
+                       notificationState.getRemoteReplyIntent(context, notifications.get(0).getRecipients()),
+                       notificationState.getDeleteMessageIntent(context, notificationId));
 
     ListIterator<NotificationItem> iterator = notifications.listIterator(notifications.size());
 
@@ -333,7 +334,8 @@ public class MessageNotifier {
     long timestamp = notifications.get(0).getTimestamp();
     if (timestamp != 0) builder.setWhen(timestamp);
 
-    builder.addActions(notificationState.getMarkAsReadIntent(context, SUMMARY_NOTIFICATION_ID));
+    builder.addActions(notificationState.getMarkAsReadIntent(context, SUMMARY_NOTIFICATION_ID),
+                       notificationState.getDeleteMessageIntent(context, SUMMARY_NOTIFICATION_ID));
 
     ListIterator<NotificationItem> iterator = notifications.listIterator(0);
 

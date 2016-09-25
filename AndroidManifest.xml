@@ -331,6 +331,14 @@
         </intent-filter>
     </receiver>
 
+    <receiver android:name=".notifications.DeleteMessageReceiver"
+        android:enabled="true"
+        android:exported="true">
+        <intent-filter>
+            <action android:name="org.smssecure.smssecure.notifications.DELETE_MSGS"/>
+        </intent-filter>
+    </receiver>
+
     <receiver android:name=".notifications.RemoteReplyReceiver"
               android:enabled="true"
               android:exported="false">

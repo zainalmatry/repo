@@ -47,12 +47,17 @@ public class MultipleRecipientNotificationBuilder extends AbstractNotificationBu
     }
   }
 
-  public void addActions(PendingIntent markAsReadIntent) {
-    NotificationCompat.Action markAllAsReadAction = new NotificationCompat.Action(R.drawable.check,
+  public void addActions(PendingIntent markAsReadIntent, PendingIntent deleteAllIntent) {
+    NotificationCompat.Action markAllAsReadAction = new NotificationCompat.Action(R.drawable.ic_check_white_24dp,
                                             context.getString(R.string.MessageNotifier_mark_all_as_read),
                                             markAsReadIntent);
+    NotificationCompat.Action deleteAllAction = new NotificationCompat.Action(R.drawable.ic_delete_white_24dp,
+                                            context.getString(R.string.MessageNotifier_delete_all),
+                                            deleteAllIntent);
     addAction(markAllAsReadAction);
-    extend(new NotificationCompat.WearableExtender().addAction(markAllAsReadAction));
+    addAction(deleteAllAction);
+    extend(new NotificationCompat.WearableExtender().addAction(markAllAsReadAction)
+                                                    .addAction(deleteAllAction));
   }
 
   public void addMessageBody(@NonNull Recipient sender, @Nullable CharSequence body) {

@@ -102,7 +102,6 @@ public class NotificationState {
     int    index       = 0;
 
     for (long thread : threads) {
-      Log.w("NotificationState", "Added thread: " + thread);
       threadArray[index++] = thread;
     }
 
@@ -111,6 +110,33 @@ public class NotificationState {
     intent.setData((Uri.parse("custom://"+System.currentTimeMillis())));
     intent.putExtra(MarkReadReceiver.THREAD_IDS_EXTRA, threadArray);
     intent.putExtra(MarkReadReceiver.NOTIFICATION_ID_EXTRA, notificationId);
+
+    return PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+  }
+
+  public PendingIntent getDeleteMessageIntent(Context context, int notificationId){
+
+    long[]    idArray     = new long[notificationCount];
+    boolean[] isMmsArray  = new boolean[notificationCount];
+    long[]    threadArray = new long[threads.size()];
+    int       index       = 0;
+
+    for (NotificationItem notificationItem : notifications) {
+      isMmsArray[index] = notificationItem.isMms();
+      idArray[index++]  = notificationItem.getId();
+    }
+    index = 0;
+    for (long thread : threads) {
+      threadArray[index++] = thread;
+    }
+
+    Intent intent = new Intent(DeleteMessageReceiver.DELETE_ACTION);
+    intent.setClass(context, DeleteMessageReceiver.class);
+    intent.setData((Uri.parse("custom://"+System.currentTimeMillis())));
+    intent.putExtra(DeleteMessageReceiver.MSG_IDS_EXTRA, idArray);
+    intent.putExtra(DeleteMessageReceiver.MSG_IS_MMS_EXTRA, isMmsArray);
+    intent.putExtra(DeleteMessageReceiver.THREAD_IDS_EXTRA, threadArray);
+    intent.putExtra(DeleteMessageReceiver.NOTIFICATION_ID_EXTRA, notificationId);
 
     return PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
   }
@@ -130,7 +156,7 @@ public class NotificationState {
   public PendingIntent getQuickReplyIntent(Context context, Recipients recipients) {
     if (threads.size() != 1) throw new AssertionError("We only support replies to single thread notifications! " + threads.size());
 
-    Intent     intent           = new Intent(context, ConversationPopupActivity.class);
+    Intent intent = new Intent(context, ConversationPopupActivity.class);
     intent.putExtra(ConversationActivity.RECIPIENTS_EXTRA, recipients.getIds());
     intent.putExtra(ConversationActivity.THREAD_ID_EXTRA, (long)threads.toArray()[0]);
     intent.setData((Uri.parse("custom://"+System.currentTimeMillis())));
