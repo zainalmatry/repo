@@ -7,6 +7,7 @@ import android.content.UriMatcher;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.content.FileProvider;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 
@@ -107,8 +108,9 @@ public class PersistentBlobProvider {
   }
 
   public Uri createForExternal(@NonNull String mimeType) throws IOException {
-    return Uri.fromFile(new File(getExternalDir(context),
-                        String.valueOf(System.currentTimeMillis()) + "." + getExtensionFromMimeType(mimeType)));
+    return FileProvider.getUriForFile(context,
+                                      "org.smssecure.provider.smssecure",
+                                      new File(getExternalDir(context), String.valueOf(System.currentTimeMillis()) + "." + getExtensionFromMimeType(mimeType)));
   }
 
   public boolean delete(@NonNull Uri uri) {

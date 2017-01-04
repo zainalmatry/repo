@@ -72,6 +72,10 @@ public class OutgoingMediaMessage {
     return false;
   }
 
+  public boolean isXmpp() {
+    return false;
+  }
+
   public long getSentTimeMillis() {
     return sentTimeMillis;
   }

@@ -50,6 +50,7 @@ import org.smssecure.smssecure.mms.IncomingMediaMessage;
 import org.smssecure.smssecure.mms.OutgoingGroupMediaMessage;
 import org.smssecure.smssecure.mms.OutgoingMediaMessage;
 import org.smssecure.smssecure.mms.OutgoingSecureMediaMessage;
+import org.smssecure.smssecure.mms.OutgoingXmppMediaMessage;
 import org.smssecure.smssecure.mms.SlideDeck;
 import org.smssecure.smssecure.recipients.Recipient;
 import org.smssecure.smssecure.recipients.RecipientFactory;
@@ -222,11 +223,7 @@ public class MmsDatabase extends MessagingDatabase {
 
     group.add(retrieved.getAddresses().getFrom());
 
-    if (SilencePreferences.isPushRegistered(context)) {
-      localNumber = SilencePreferences.getLocalNumber(context);
-    } else {
-      localNumber = ServiceUtil.getTelephonyManager(context).getLine1Number();
-    }
+    localNumber = ServiceUtil.getTelephonyManager(context).getLine1Number();
 
     for (String cc : retrieved.getAddresses().getCc()) {
       PhoneNumberUtil.MatchType match;
@@ -300,11 +297,6 @@ public class MmsDatabase extends MessagingDatabase {
     notifyConversationListeners(getThreadIdForMessage(messageId));
   }
 
-  public void markAsForcedSms(long messageId) {
-    updateMailboxBitmask(messageId, Types.PUSH_MESSAGE_BIT, Types.MESSAGE_FORCE_SMS_BIT);
-    notifyConversationListeners(getThreadIdForMessage(messageId));
-  }
-
   public void markAsPendingSecureSmsFallback(long messageId) {
     updateMailboxBitmask(messageId, Types.BASE_TYPE_MASK, Types.BASE_PENDING_SECURE_SMS_FALLBACK);
     notifyConversationListeners(getThreadIdForMessage(messageId));
@@ -361,8 +353,8 @@ public class MmsDatabase extends MessagingDatabase {
     updateMailboxBitmask(messageId, Types.SECURE_MESSAGE_BIT, 0);
   }
 
-  public void markAsPush(long messageId) {
-    updateMailboxBitmask(messageId, 0, Types.PUSH_MESSAGE_BIT);
+  public void markAsXmpp(long messageId) {
+    updateMailboxBitmask(messageId, 0, Types.XMPP_MESSAGE_BIT);
   }
 
   public void markAsDecryptFailed(long messageId, long threadId) {
@@ -455,6 +447,10 @@ public class MmsDatabase extends MessagingDatabase {
         OutgoingMediaMessage message = new OutgoingMediaMessage(recipients, body, attachments, timestamp, subscriptionId,
                                                                 !addresses.getBcc().isEmpty() ? ThreadDatabase.DistributionTypes.BROADCAST :
                                                                                                 ThreadDatabase.DistributionTypes.DEFAULT);
+        if (Types.isXmppType(outboxType)) {
+          return new OutgoingXmppMediaMessage(message);
+        }
+
         if (Types.isSecureType(outboxType)) {
           return new OutgoingSecureMediaMessage(message);
         }
@@ -566,8 +562,7 @@ public class MmsDatabase extends MessagingDatabase {
       throws MmsException
   {
     return insertMessageInbox(masterSecret, retrieved, contentLocation, threadId,
-                              Types.BASE_INBOX_TYPE | Types.ENCRYPTION_SYMMETRIC_BIT |
-                              (retrieved.isPushMessage() ? Types.PUSH_MESSAGE_BIT : 0));
+                              Types.BASE_INBOX_TYPE | Types.ENCRYPTION_SYMMETRIC_BIT);
   }
 
   public Pair<Long, Long> insertSecureMessageInbox(MasterSecret masterSecret,
@@ -587,8 +582,7 @@ public class MmsDatabase extends MessagingDatabase {
   {
     return insertMessageInbox(masterSecret, retrieved, "", threadId,
                               Types.BASE_INBOX_TYPE | Types.SECURE_MESSAGE_BIT |
-                              Types.ENCRYPTION_SYMMETRIC_BIT |
-                              (retrieved.isPushMessage() ? Types.PUSH_MESSAGE_BIT : 0));
+                              Types.ENCRYPTION_SYMMETRIC_BIT);
   }
 
   public Pair<Long, Long> insertMessageInbox(@NonNull NotificationInd notification, int subscriptionId) {
@@ -647,13 +641,12 @@ public class MmsDatabase extends MessagingDatabase {
   }
 
   public long insertMessageOutbox(MasterSecret masterSecret, OutgoingMediaMessage message,
-                                  long threadId, boolean forceSms)
+                                  long threadId)
       throws MmsException
   {
     long type = Types.BASE_OUTBOX_TYPE | Types.ENCRYPTION_SYMMETRIC_BIT;
 
     if (message.isSecure()) type |= Types.SECURE_MESSAGE_BIT;
-    if (forceSms)           type |= Types.MESSAGE_FORCE_SMS_BIT;
 
     if (message.isGroup()) {
       if      (((OutgoingGroupMediaMessage)message).isGroupUpdate()) type |= Types.GROUP_UPDATE_BIT;

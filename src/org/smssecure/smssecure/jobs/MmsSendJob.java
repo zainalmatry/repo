@@ -22,6 +22,7 @@ import org.smssecure.smssecure.notifications.MessageNotifier;
 import org.smssecure.smssecure.recipients.Recipient;
 import org.smssecure.smssecure.recipients.Recipients;
 import org.smssecure.smssecure.recipients.RecipientFormattingException;
+import org.smssecure.smssecure.service.XmppService;
 import org.smssecure.smssecure.transport.InsecureFallbackApprovalException;
 import org.smssecure.smssecure.transport.UndeliverableMessageException;
 import org.smssecure.smssecure.util.Hex;
@@ -79,36 +80,52 @@ public class MmsSendJob extends SendJob {
     OutgoingMediaMessage message  = database.getOutgoingMessage(masterSecret, messageId);
 
     try {
+
       boolean upgradedSecure = false;
 
       SendReq pdu = constructSendPdu(masterSecret, message);
 
-      if (message.isSecure()) {
-        Log.w(TAG, "Encrypting MMS...");
+      if (message.isXmpp() || message.isSecure()) {
+        Log.w(TAG, "Encrypting media message...");
         pdu = getEncryptedMessage(masterSecret, pdu);
         upgradedSecure = true;
       }
 
       validateDestinations(message, pdu);
 
-      final byte[]        pduBytes = getPduBytes(masterSecret, pdu);
-      final SendConf      sendConf = new CompatMmsConnection(context).send(pduBytes, message.getSubscriptionId());
-      final MmsSendResult result   = getSendResult(sendConf, pdu, upgradedSecure);
+      final byte[] pduBytes = getPduBytes(masterSecret, pdu);
 
-      if (result.isUpgradedSecure()) {
+      if (!message.isXmpp()) {
+
+        final SendConf      sendConf = new CompatMmsConnection(context).send(pduBytes, message.getSubscriptionId());
+        final MmsSendResult result   = getSendResult(sendConf, pdu, upgradedSecure);
+
+        if (result.isUpgradedSecure()) {
+          database.markAsSecure(messageId);
+        }
+
+        database.markAsSent(messageId);
+        markAttachmentsUploaded(messageId, message.getAttachments());
+      } else {
+        Log.w(TAG, "Sending XMPP media message...");
+
         database.markAsSecure(messageId);
-      }
 
-      database.markAsSent(messageId);
-      markAttachmentsUploaded(messageId, message.getAttachments());
+        XmppService xmppService = XmppService.getInstance();
+        if (xmppService == null) throw new UndeliverableMessageException("XmppService not available!");
+        for (Attachment attachement : message.getAttachments()) {
+          Log.w(TAG, "Sending an attachement...");
+          xmppService.sendMedia(masterSecret, message.getBody(), attachement, messageId, message.getRecipients(), pduBytes);
+        }
+      }
     } catch (UndeliverableMessageException | IOException e) {
       Log.w(TAG, e);
       database.markAsSentFailed(messageId);
-      notifyMediaMessageDeliveryFailed(context, messageId);
+      MmsSendJob.notifyMediaMessageDeliveryFailed(context, messageId);
     } catch (InsecureFallbackApprovalException e) {
       Log.w(TAG, e);
       database.markAsPendingInsecureSmsFallback(messageId);
-      notifyMediaMessageDeliveryFailed(context, messageId);
+      MmsSendJob.notifyMediaMessageDeliveryFailed(context, messageId);
     }
   }
 
@@ -120,7 +137,7 @@ public class MmsSendJob extends SendJob {
   @Override
   public void onCanceled() {
     DatabaseFactory.getMmsDatabase(context).markAsSentFailed(messageId);
-    notifyMediaMessageDeliveryFailed(context, messageId);
+    MmsSendJob.notifyMediaMessageDeliveryFailed(context, messageId);
   }
 
   private byte[] getPduBytes(MasterSecret masterSecret, SendReq message)
@@ -247,7 +264,7 @@ public class MmsSendJob extends SendJob {
     return sendReq;
   }
 
-  private void notifyMediaMessageDeliveryFailed(Context context, long messageId) {
+  public static void notifyMediaMessageDeliveryFailed(Context context, long messageId) {
     long       threadId   = DatabaseFactory.getMmsDatabase(context).getThreadIdForMessage(messageId);
     Recipients recipients = DatabaseFactory.getThreadDatabase(context).getRecipientsForThreadId(threadId);
 

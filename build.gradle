@@ -5,7 +5,7 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:1.2.3'
+        classpath 'com.android.tools.build:gradle:1.5.0'
         classpath files('libs/gradle-witness.jar')
     }
 }
@@ -56,6 +56,11 @@ dependencies {
     compile project (':libs:com.amulyakhare.textdrawable:library')
     compile 'me.relex:circleindicator:1.0.0@aar'
 
+    compile "org.igniterealtime.smack:smack-android-extensions:4.1.9"
+    compile "org.igniterealtime.smack:smack-experimental:4.1.9"
+    compile "org.igniterealtime.smack:smack-tcp:4.1.9"
+    compile "com.squareup.okhttp3:okhttp:3.5.0"
+
     testCompile 'junit:junit:4.12'
     testCompile 'org.assertj:assertj-core:1.7.1'
     testCompile 'org.mockito:mockito-core:1.9.5'
@@ -102,7 +107,6 @@ dependencyVerification {
             'com.melnykov:floatingactionbutton:15d58d4fac0f7a288d0e5301bbaf501a146f5b3f5921277811bf99bd3b397263',
             'com.nineoldandroids:library:68025a14e3e7673d6ad2f95e4b46d78d7d068343aa99256b686fe59de1b3163a',
             'com.squareup.dagger:dagger:789aca24537022e49f91fc6444078d9de8f1dd99e1bfb090f18491b186967883',
-            'com.squareup.okio:okio:5e1098bd3fdee4c3347f5ab815b40ba851e4ab1b348c5e49a5b0362f0ce6e978',
             'javax.inject:javax.inject:91c77044a50c481636c32d916fd89c9118a72195390452c81065080f957de7ff',
             'org.apache.httpcomponents:httpclient-android:6f56466a9bd0d42934b90bfbfe9977a8b654c058bf44a12bdc2877c4e1f033f1',
             'org.whispersystems:axolotl-android:40d3db5004a84749a73f68d2f0d01b2ae35a73c54df96d8c6c6723b96efb6fc0',
@@ -113,19 +117,23 @@ dependencyVerification {
             'org.whispersystems:textsecure-java:b407ca6d1430204dfabf38e27db22d5177409072a9668238bd1877de7676ad3f',
             'se.emilsjolander:stickylistheaders:a08ca948aa6b220f09d82f16bbbac395f6b78897e9eeac6a9f0b0ba755928eeb',
             'com.squareup.okhttp:okhttp:89b7f63e2e5b6c410266abc14f50fe52ea8d2d8a57260829e499b1cd9f0e61af',
+            'org.igniterealtime.smack:smack-android-extensions:622837f2afeb21c364e42685985f46d52c4b3746ea4108390face7b08303f209',
+            'org.igniterealtime.smack:smack-experimental:3b01f815b03e35f55149ab0f08432b69944e50582b2d277d9f3229729f440ed2',
+            'org.igniterealtime.smack:smack-tcp:69343b52816522aa491b743a0e620b06feb7245a174c7d0cce669586fa3995b3',
     ]
 }
 
 android {
-    compileSdkVersion 22
+    compileSdkVersion 25
     buildToolsVersion '22.0.1'
+    useLibrary 'org.apache.http.legacy'
 
     defaultConfig {
         versionCode 128
         versionName "0.14.8"
 
         minSdkVersion 9
-        targetSdkVersion 22
+        targetSdkVersion 25
 
         try{
             buildConfigField "String", "BUILD_GIT_COMMIT", "\"" + 'git rev-parse --short HEAD'.execute().text.trim() + "\""

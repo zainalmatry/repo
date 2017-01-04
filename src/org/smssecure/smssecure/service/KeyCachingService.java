@@ -249,7 +249,7 @@ public class KeyCachingService extends Service {
     startForeground(SERVICE_RUNNING_ID, builder.build());
   }
 
-  private void foregroundServiceICS() {
+  private void foregroundServiceLegacy() {
     NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
     RemoteViews remoteViews            = new RemoteViews(getPackageName(), R.layout.key_caching_notification);
 
@@ -263,20 +263,6 @@ public class KeyCachingService extends Service {
     startForeground(SERVICE_RUNNING_ID, builder.build());
   }
 
-  private void foregroundServiceLegacy() {
-    Notification notification  = new Notification(R.drawable.icon_cached,
-                                                  getString(R.string.KeyCachingService_silence_passphrase_cached),
-                                                  System.currentTimeMillis());
-    notification.setLatestEventInfo(getApplicationContext(),
-                                    getString(R.string.KeyCachingService_passphrase_cached),
-                                    getString(R.string.KeyCachingService_silence_passphrase_cached),
-                                    buildLaunchIntent());
-    notification.tickerText = null;
-
-    stopForeground(true);
-    startForeground(SERVICE_RUNNING_ID, notification);
-  }
-
   private void foregroundService() {
     if (SilencePreferences.isPasswordDisabled(this)) {
       stopForeground(true);
@@ -285,8 +271,6 @@ public class KeyCachingService extends Service {
 
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
       foregroundServiceModern();
-    } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-      foregroundServiceICS();
     } else {
       foregroundServiceLegacy();
     }

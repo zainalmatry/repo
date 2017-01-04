@@ -13,6 +13,7 @@ import org.smssecure.smssecure.database.EncryptingSmsDatabase;
 import org.smssecure.smssecure.notifications.MessageNotifier;
 import org.smssecure.smssecure.protocol.WirePrefix;
 import org.smssecure.smssecure.recipients.RecipientFactory;
+import org.smssecure.smssecure.recipients.Recipient;
 import org.smssecure.smssecure.recipients.Recipients;
 import org.smssecure.smssecure.service.KeyCachingService;
 import org.smssecure.smssecure.sms.IncomingTextMessage;
@@ -33,6 +34,8 @@ public class SmsReceiveJob extends ContextJob {
 
   private final Object[] pdus;
   private final int      subscriptionId;
+  private final String   body;
+  private final String   senderNumber;
 
   public SmsReceiveJob(Context context, Object[] pdus, int subscriptionId) {
     super(context, JobParameters.newBuilder()
@@ -42,6 +45,19 @@ public class SmsReceiveJob extends ContextJob {
 
     this.pdus           = pdus;
     this.subscriptionId = subscriptionId;
+    this.body           = null;
+    this.senderNumber   = null;
+  }
+
+  public SmsReceiveJob(Context context, String body, String senderNumber, int subscriptionId) {
+    super(context, JobParameters.newBuilder()
+                                .withPersistence()
+                                .withWakeLock(true)
+                                .create());
+    this.pdus           = null;
+    this.subscriptionId = subscriptionId;
+    this.body           = body;
+    this.senderNumber   = senderNumber;
   }
 
   @Override
@@ -50,7 +66,18 @@ public class SmsReceiveJob extends ContextJob {
   @Override
   public void onRun() {
     MasterSecret masterSecret = KeyCachingService.getMasterSecret(context);
-    Optional<IncomingTextMessage> message = assembleMessageFragments(pdus, subscriptionId, masterSecret);
+    Optional<IncomingTextMessage> message;
+
+    if (pdus != null) {
+      message = assembleMessageFragments(pdus, subscriptionId, masterSecret);
+    } else {
+      IncomingTextMessage incomingTextMessage = new IncomingTextMessage(senderNumber, 1, System.currentTimeMillis(), body, masterSecret == null);
+      if (WirePrefix.isPrefixedMessage(incomingTextMessage.getMessageBody())) {
+        message = Optional.fromNullable(multipartMessageHandler.processPotentialMultipartMessage(incomingTextMessage));
+      } else {
+        message = Optional.of(incomingTextMessage);
+      }
+    }
 
     if (message.isPresent() && !isBlocked(message.get())) {
       Pair<Long, Long> messageAndThreadId = storeMessage(message.get());

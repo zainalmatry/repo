@@ -17,6 +17,7 @@ android:
     - build-tools-20.0.0
     - build-tools-19.1.0
     - android-22
+    - android-25
     - extra-android-m2repository
 
 before_script:
